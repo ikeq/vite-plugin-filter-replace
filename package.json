@@ -1,0 +1,24 @@
+{
+  "name": "vite-plugin-filter-replace",
+  "version": "0.1.0",
+  "description": "Apply filter-based replacements",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ikeq/vite-plugin-filter-replace.git"
+  },
+  "keywords": [
+    "vite",
+    "replace"
+  ],
+  "author": "ikeq",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ikeq/vite-plugin-filter-replace/issues"
+  },
+  "homepage": "https://github.com/ikeq/vite-plugin-filter-replace#readme"
+}
