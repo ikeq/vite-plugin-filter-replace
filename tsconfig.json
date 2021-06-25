@@ -8,7 +8,7 @@
     "moduleResolution": "node",
     "strict": true,
     "declaration": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "noUnusedLocals": true,
     "esModuleInterop": true,
     "baseUrl": "."
