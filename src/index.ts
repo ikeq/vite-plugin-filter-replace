@@ -93,7 +93,7 @@ export default function filterReplace(replacements: Replacement[] = [], options:
   if (!resolvedReplacements.length) return;
 
   return {
-    name: 'vite:plugin-filter-replace',
+    name: 'vite-plugin-filter-replace',
     enforce: options.enforce,
     apply: options.apply,
     config(config, env) {
@@ -110,7 +110,7 @@ export default function filterReplace(replacements: Replacement[] = [], options:
       config.optimizeDeps.esbuildOptions.plugins.unshift(
         ...resolvedReplacements.map((option) => {
           return {
-            name: 'vite:plugin-filter-replace' + (option.id ? `:${option.id}` : ''),
+            name: 'vite-plugin-filter-replace' + (option.id ? `:${option.id}` : ''),
             setup(build: PluginBuild) {
               build.onLoad({ filter: option.filter, namespace: 'file' }, async ({ path }) => {
                 const source = await fs.promises.readFile(path, 'utf8');
