@@ -87,10 +87,10 @@ function parseReplacements(replacements: Replacement[]):
   }, []);
 }
 
-export default function filterReplace(replacements: Replacement[] = [], options: Options = {}): Plugin | void {
+export default function filterReplace(replacements: Replacement[] = [], options: Options = {}): Plugin {
   const resolvedReplacements = parseReplacements(replacements);
 
-  if (!resolvedReplacements.length) return;
+  if (!resolvedReplacements.length) return {} as any;
 
   return {
     name: 'vite-plugin-filter-replace',
