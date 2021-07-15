@@ -17,7 +17,8 @@ interface Replacement {
   replace: Array<{
     from: RegExp | string | string[]; to: string | number; } |
     (path: string, source: string) => string
-  > | (path: string, source: string) => string;
+  > | ((path: string, source: string) => string)
+    | { from: RegExp | string | string[]; to: string | number; };
 }
 
 interface Options {
@@ -37,8 +38,14 @@ export default {
       [
         {
           filter: /\.css$/,
+          replace: {
+            from: /__foo__/g,
+            to: 'xxx'
+          },
+        },
+        {
+          filter: /\.css$/,
           replace: [
-            { from: /__foo__/g, to: 'xxx' },
             { from: /__bar__/g, to: 'xxx' },
           ],
         },

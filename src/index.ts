@@ -17,7 +17,7 @@ interface Replacement {
   /**
    * esm modules which required by using `require('esm')`
    */
-  replace: Array<ReplacePair | ReplaceFn> | ReplaceFn;
+  replace: ReplacePair | ReplaceFn | Array<ReplacePair | ReplaceFn>;
 }
 
 interface Options {
@@ -62,7 +62,7 @@ function parseReplacements(replacements: Replacement[]):
     let { replace = [] } = replacement;
 
     if (!filter) return entries;
-    if (typeof replace === 'function') {
+    if (typeof replace === 'function' || !Array.isArray(replace)) {
       replace = [replace];
     }
 
@@ -89,14 +89,28 @@ function parseReplacements(replacements: Replacement[]):
 
 export default function filterReplace(replacements: Replacement[] = [], options: Options = {}): Plugin {
   const resolvedReplacements = parseReplacements(replacements);
+  let isServe = true;
 
   if (!resolvedReplacements.length) return {} as any;
+
+  function replace(code: string, id: string): string {
+    return resolvedReplacements.reduce((code, rp) => {
+      if (!rp.filter.test(id)) {
+        return code;
+      }
+      return rp.replace.reduce((text, replace) => replace(id, text), code);
+    }, code);
+  }
 
   return {
     name: 'vite-plugin-filter-replace',
     enforce: options.enforce,
     apply: options.apply,
-    config(config, env) {
+    config: (config, env) => {
+      isServe = env.command === 'serve';
+
+      if (!isServe) return;
+
       if (!config.optimizeDeps) {
         config.optimizeDeps = {};
       }
@@ -126,6 +140,14 @@ export default function filterReplace(replacements: Replacement[] = [], options:
       );
 
       return config;
+    },
+    renderChunk(code, chunk) {
+      if (isServe) return null;
+      return replace(code, chunk.fileName);
+    },
+    transform(code, id) {
+      if (isServe) return null;
+      return replace(code, id);
     },
   };
 }
