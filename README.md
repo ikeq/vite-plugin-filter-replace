@@ -55,8 +55,7 @@ export default {
             return 'some code';
           },
         },
-      ],
-      { apply: 'serve' }
+      ]
     ),
   ],
 };
