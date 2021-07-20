@@ -48,6 +48,9 @@ function parseReplacements(replacements: Replacement[]):
   Array<Omit<Replacement, 'replace' | 'filter'> & { filter: RegExp; replace: ReplaceFn[] }> {
   if (!replacements || !replacements.length) return [];
 
+  // TODO:
+  // re-group replacements to ensure filter is unique
+
   return replacements.reduce((entries: any[], replacement) => {
     const filter =
       replacement.filter instanceof RegExp || typeof replacement.filter === 'function'
@@ -71,7 +74,7 @@ function parseReplacements(replacements: Replacement[]):
 
       const { from, to } = rp;
 
-      if (!from || !to) return entries;
+      if (from === undefined || to === undefined) return entries;
 
       return entries.concat((_, source) =>
         source.replace(
