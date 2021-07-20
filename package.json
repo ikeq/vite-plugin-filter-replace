@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-filter-replace",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Apply filter-based replacements",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

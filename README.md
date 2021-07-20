@@ -16,8 +16,8 @@ interface Replacement {
   filter: RegExp | string | string[];
   replace: Array<{
     from: RegExp | string | string[]; to: string | number; } |
-    (path: string, source: string) => string
-  > | ((path: string, source: string) => string)
+    (source: string, path: string) => string
+  > | ((source: string, path: string) => string)
     | { from: RegExp | string | string[]; to: string | number; };
 }
 

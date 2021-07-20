@@ -2,7 +2,7 @@ import fs from 'fs';
 import { Plugin } from 'vite'
 import { PluginBuild } from 'esbuild';
 
-type ReplaceFn = (path: string, source: string) => string;
+type ReplaceFn = (source: string, path: string) => string;
 type ReplacePair = { from: RegExp | string | string[]; to: string | number; };
 
 interface Replacement {
@@ -76,7 +76,7 @@ function parseReplacements(replacements: Replacement[]):
 
       if (from === undefined || to === undefined) return entries;
 
-      return entries.concat((_, source) =>
+      return entries.concat((source) =>
         source.replace(
           from instanceof RegExp ? from : new RegExp(`(${[].concat(from as any).map(escape).join('|')})`, 'g'),
           String(to)
@@ -101,7 +101,7 @@ export default function filterReplace(replacements: Replacement[] = [], options:
       if (!rp.filter.test(id)) {
         return code;
       }
-      return rp.replace.reduce((text, replace) => replace(id, text), code);
+      return rp.replace.reduce((text, replace) => replace(text, id), code);
     }, code);
   }
 
@@ -134,7 +134,7 @@ export default function filterReplace(replacements: Replacement[] = [], options:
 
                 return {
                   loader: 'default',
-                  contents: option.replace.reduce((text, replace) => replace(path, text), source),
+                  contents: option.replace.reduce((text, replace) => replace(text, path), source),
                 };
               });
             },
