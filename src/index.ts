@@ -149,7 +149,6 @@ export default function filterReplace(replacements: Replacement[] = [], options:
       return replace(code, chunk.fileName);
     },
     transform(code, id) {
-      if (isServe) return null;
       return replace(code, id);
     },
   };
