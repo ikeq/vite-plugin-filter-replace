@@ -151,5 +151,11 @@ export default function filterReplace(replacements: Replacement[] = [], options:
     transform(code, id) {
       return replace(code, id);
     },
+    async handleHotUpdate(ctx) {
+      const defaultRead = ctx.read;
+      ctx.read = async function () {
+        return replace(await defaultRead(), ctx.file);
+      }
+    },
   };
 }
