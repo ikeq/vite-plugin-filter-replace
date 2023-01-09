@@ -1,9 +1,9 @@
 import fs from 'fs';
-import { Plugin } from 'vite'
+import { Plugin } from 'vite';
 import { PluginBuild } from 'esbuild';
 
 type ReplaceFn = (source: string, path: string) => string;
-type ReplacePair = { from: RegExp | string | string[]; to: string | number; };
+type ReplacePair = { from: RegExp | string | string[]; to: string | number };
 
 interface Replacement {
   /**
@@ -44,8 +44,9 @@ function escape(str: string): string {
   return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 }
 
-function parseReplacements(replacements: Replacement[]):
-  Array<Omit<Replacement, 'replace' | 'filter'> & { filter: RegExp; replace: ReplaceFn[] }> {
+function parseReplacements(
+  replacements: Replacement[],
+): Array<Omit<Replacement, 'replace' | 'filter'> & { filter: RegExp; replace: ReplaceFn[] }> {
   if (!replacements || !replacements.length) return [];
 
   // TODO:
@@ -53,15 +54,15 @@ function parseReplacements(replacements: Replacement[]):
 
   return replacements.reduce((entries: any[], replacement) => {
     const filter =
-      replacement.filter instanceof RegExp || typeof replacement.filter === 'function'
+      replacement.filter instanceof RegExp
         ? replacement.filter
         : new RegExp(
-          `(${[]
-            .concat(replacement.filter as any)
-            .filter((i) => i)
-            .map((i: string) => escape(i.trim()))
-            .join('|')})`
-        );
+            `(${[]
+              .concat(replacement.filter as any)
+              .filter((i) => i)
+              .map((i: string) => escape(i.trim().replace(/\\+/g, '/')))
+              .join('|')})`,
+          );
     let { replace = [] } = replacement;
 
     if (!filter) return entries;
@@ -78,9 +79,17 @@ function parseReplacements(replacements: Replacement[]):
 
       return entries.concat((source) =>
         source.replace(
-          from instanceof RegExp ? from : new RegExp(`(${[].concat(from as any).map(escape).join('|')})`, 'g'),
-          String(to)
-        )
+          from instanceof RegExp
+            ? from
+            : new RegExp(
+                `(${[]
+                  .concat(from as any)
+                  .map(escape)
+                  .join('|')})`,
+                'g',
+              ),
+          String(to),
+        ),
       );
     }, []);
 
@@ -90,7 +99,10 @@ function parseReplacements(replacements: Replacement[]):
   }, []);
 }
 
-export default function filterReplace(replacements: Replacement[] = [], options: Options = {}): Plugin {
+export default function filterReplace(
+  replacements: Replacement[] = [],
+  options: Options = {},
+): Plugin {
   const resolvedReplacements = parseReplacements(replacements);
   let isServe = true;
 
@@ -139,7 +151,7 @@ export default function filterReplace(replacements: Replacement[] = [], options:
               });
             },
           };
-        })
+        }),
       );
 
       return config;
@@ -155,7 +167,7 @@ export default function filterReplace(replacements: Replacement[] = [], options:
       const defaultRead = ctx.read;
       ctx.read = async function () {
         return replace(await defaultRead(), ctx.file);
-      }
+      };
     },
   };
 }
