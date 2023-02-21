@@ -34,29 +34,25 @@ import vue from '@vitejs/plugin-vue';
 
 export default {
   plugins: [
-    filterReplace(
-      [
-        {
-          filter: /\.css$/,
-          replace: {
-            from: /__foo__/g,
-            to: 'xxx'
-          },
+    filterReplace([
+      {
+        filter: /\.css$/,
+        replace: {
+          from: /__foo__/g,
+          to: 'xxx',
         },
-        {
-          filter: /\.css$/,
-          replace: [
-            { from: /__bar__/g, to: 'xxx' },
-          ],
+      },
+      {
+        filter: /\.css$/,
+        replace: [{ from: /__bar__/g, to: 'xxx' }],
+      },
+      {
+        filter: ['node_modules/moment/dist/moment.js'],
+        replace(source, path) {
+          return 'some code';
         },
-        {
-          filter: ['node_modules/moment/dist/moment.js'],
-          replace(path, source) {
-            return 'some code';
-          },
-        },
-      ]
-    ),
+      },
+    ]),
   ],
 };
 ```
