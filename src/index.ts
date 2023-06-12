@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import { Plugin } from 'vite';
 import { PluginBuild } from 'esbuild';
 
@@ -10,35 +10,11 @@ interface Replacement {
    * for debugging purpose
    */
   id?: string | number;
-  /**
-   * name matching of module
-   */
   filter: RegExp | string | string[];
-  /**
-   * esm modules which required by using `require('esm')`
-   */
   replace: ReplacePair | ReplaceFn | Array<ReplacePair | ReplaceFn>;
 }
 
-interface Options {
-  /**
-   * Enforce plugin invocation tier similar to webpack loaders.
-   *
-   * Plugin invocation order:
-   * - alias resolution
-   * - `enforce: 'pre'` plugins
-   * - vite core plugins
-   * - normal plugins
-   * - vite build plugins
-   * - `enforce: 'post'` plugins
-   * - vite build post plugins
-   */
-  enforce?: 'pre' | 'post';
-  /**
-   * Apply the plugin only for serve or for build.
-   */
-  apply?: 'serve' | 'build';
-}
+interface Options extends Pick<Plugin, 'enforce' | 'apply'> {}
 
 function escape(str: string): string {
   return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
@@ -99,10 +75,7 @@ function parseReplacements(
   }, []);
 }
 
-export default function filterReplace(
-  replacements: Replacement[] = [],
-  options: Options = {},
-): Plugin {
+export default function replace(replacements: Replacement[] = [], options: Options = {}): Plugin {
   const resolvedReplacements = parseReplacements(replacements);
   let isServe = true;
 
@@ -142,7 +115,7 @@ export default function filterReplace(
             name: 'vite-plugin-filter-replace' + (option.id ? `:${option.id}` : ''),
             setup(build: PluginBuild) {
               build.onLoad({ filter: option.filter, namespace: 'file' }, async ({ path }) => {
-                const source = await fs.promises.readFile(path, 'utf8');
+                const source = await fs.readFile(path, 'utf8');
 
                 return {
                   loader: 'default',
