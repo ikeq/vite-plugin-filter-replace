@@ -1,11 +1,19 @@
 {
   "name": "vite-plugin-filter-replace",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Apply filename based replacements.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc"
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
   "repository": {
     "type": "git",
@@ -25,5 +33,10 @@
     "@types/node": "^18.11.18",
     "typescript": "^4.9.4",
     "vite": "^4.0.4"
+  },
+  "scripts": {
+    "build:esm": "tsc --module esnext && cd dist && mv index.js index.mjs",
+    "build:cjs": "tsc && cd dist && mv index.js index.cjs",
+    "build": "yarn build:esm && yarn build:cjs"
   }
 }
