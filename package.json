@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-filter-replace",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Apply filename based replacements.",
   "files": [
     "dist"
@@ -38,5 +38,8 @@
     "build:esm": "tsc --module esnext && cd dist && mv index.js index.mjs",
     "build:cjs": "tsc && cd dist && mv index.js index.cjs",
     "build": "yarn build:esm && yarn build:cjs"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.17"
   }
 }

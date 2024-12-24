@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import { Plugin } from 'vite';
 import { PluginBuild } from 'esbuild';
+import MagicString, { SourceMap } from 'magic-string';
 
 type ReplaceFn = (source: string, path: string) => string;
 type ReplacePair = { from: RegExp | string | string[]; to: string | number };
@@ -75,19 +76,31 @@ function parseReplacements(
   }, []);
 }
 
-export default function replace(replacements: Replacement[] = [], options: Options = {}): Plugin {
+export default function (replacements: Replacement[] = [], options: Options = {}): Plugin {
   const resolvedReplacements = parseReplacements(replacements);
   let isServe = true;
+  let sourcemap = false;
 
   if (!resolvedReplacements.length) return {} as any;
 
-  function replace(code: string, id: string): string {
-    return resolvedReplacements.reduce((code, rp) => {
-      if (!rp.filter.test(id)) {
-        return code;
-      }
+  function replace(code: string, id: string): string;
+  function replace(code: string, id: string, sourcemap: boolean): { code: string; map: SourceMap };
+  function replace(
+    code: string,
+    id: string,
+    sourcemap?: boolean,
+  ): string | { code: string; map: SourceMap } {
+    const replaced = resolvedReplacements.reduce((code, rp) => {
+      if (!rp.filter.test(id)) return code;
       return rp.replace.reduce((text, replace) => replace(text, id), code);
     }, code);
+
+    if (!sourcemap) return replaced;
+
+    return {
+      code: replaced,
+      map: new MagicString(replaced).generateMap({ hires: true }),
+    };
   }
 
   return {
@@ -96,6 +109,7 @@ export default function replace(replacements: Replacement[] = [], options: Optio
     apply: options.apply,
     config: (config, env) => {
       isServe = env.command === 'serve';
+      sourcemap = !!config.build?.sourcemap;
 
       if (!isServe) return;
 
@@ -131,10 +145,10 @@ export default function replace(replacements: Replacement[] = [], options: Optio
     },
     renderChunk(code, chunk) {
       if (isServe) return null;
-      return replace(code, chunk.fileName);
+      return replace(code, chunk.fileName, sourcemap);
     },
     transform(code, id) {
-      return replace(code, id);
+      return replace(code, id, sourcemap);
     },
     async handleHotUpdate(ctx) {
       const defaultRead = ctx.read;

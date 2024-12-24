@@ -8,28 +8,31 @@ import replace from 'vite-plugin-filter-replace';
 
 export default {
   plugins: [
-    replace([
-      {
-        filter: /\.css$/,
-        replace: {
-          from: /__foo__/g,
-          to: 'foo',
+    replace(
+      [
+        {
+          filter: /\.css$/,
+          replace: {
+            from: /__foo__/g,
+            to: 'foo',
+          },
         },
-      },
-      {
-        filter: /\.css$/,
-        replace: [
-          { from: /__foo__/g, to: 'foo' },
-          { from: /__(foo)__/g, to: '$1' },
-        ],
-      },
-      {
-        filter: ['node_modules/moment/dist/moment.js'],
-        replace(source, path) {
-          return 'some code';
+        {
+          filter: /\.css$/,
+          replace: [
+            { from: /__foo__/g, to: 'foo' },
+            { from: /__(foo)__/g, to: '$1' },
+          ],
         },
-      },
-    ]),
+        {
+          filter: ['node_modules/moment/dist/moment.js'],
+          replace(source, path) {
+            return 'some code';
+          },
+        },
+      ],
+      { enforce: 'pre' },
+    ),
   ],
 };
 ```
@@ -37,13 +40,27 @@ export default {
 ## Options
 
 ```ts
+function replace(replacements: Replacement[]): Plugin;
+function replace(replacements: Replacement[], options: Options): Plugin;
+
 interface Replacement {
   filter: RegExp | string | string[];
-  replace: Array<{
-    from: RegExp | string | string[]; to: string | number; } |
-    (source: string, path: string) => string
-  > | ((source: string, path: string) => string)
-    | { from: RegExp | string | string[]; to: string | number; };
+  replace: { from: RegExp | string | string[]; to: string | number };
+}
+
+interface Replacement {
+  filter: RegExp | string | string[];
+  replace: (source: string, path: string) => string;
+}
+
+interface Replacement {
+  filter: RegExp | string | string[];
+  replace: { from: RegExp | string | string[]; to: string | number }[];
+}
+
+interface Replacement {
+  filter: RegExp | string | string[];
+  replace: ((source: string, path: string) => string)[];
 }
 
 interface Options {
